@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# whatsapp session (baileys)
+.baileys-auth/
+
+# prisma generated client
+/src/generated/prisma

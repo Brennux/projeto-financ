@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Tipo {
+  despesa
+  receita
+}
+
+enum WhatsAppStatus {
+  pending
+  connecting
+  qr_ready
+  connected
+  disconnected
+  logged_out
+}
+
+model Household {
+  id           String   @id @default(cuid())
+  name         String
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  users        User[]
+  transactions Transaction[]
+  invites      HouseholdInvite[]
+  budgets      Budget[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  senhaHash    String
+  nome         String
+  householdId  String
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  household       Household         @relation(fields: [householdId], references: [id], onDelete: Restrict)
+  transactions    Transaction[]
+  whatsAppAccount WhatsAppAccount?
+  invitesCriados  HouseholdInvite[] @relation("HouseholdInviteCreatedBy")
+
+  @@index([householdId])
+}
+
+model WhatsAppAccount {
+  id           String         @id @default(cuid())
+  userId       String         @unique
+  status       WhatsAppStatus @default(pending)
+  qr           String?
+  phoneNumber  String?
+  criadoEm     DateTime       @default(now())
+  atualizadoEm DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model HouseholdInvite {
+  id          String    @id @default(cuid())
+  householdId String
+  token       String    @unique @default(uuid())
+  criadoPorId String
+  expiraEm    DateTime
+  usadoEm     DateTime?
+  criadoEm    DateTime  @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  criadoPor User      @relation("HouseholdInviteCreatedBy", fields: [criadoPorId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
+}
+
+model Transaction {
+  id                String   @id @default(cuid())
+  tipo              Tipo
+  valor             Decimal  @db.Decimal(10, 2)
+  categoria         String
+  descricao         String?
+  data              DateTime @db.Date
+  mensagemOriginal  String?
+  remetente         String?
+  whatsappMessageId String?  @unique
+  origem            String   @default("whatsapp")
+  householdId       String
+  userId            String?
+  criadoEm          DateTime @default(now())
+  atualizadoEm      DateTime @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Restrict)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, data, tipo])
+  @@index([householdId, categoria])
+}
+
+model Budget {
+  id           String   @id @default(cuid())
+  householdId  String
+  categoria    String
+  limite       Decimal  @db.Decimal(10, 2)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, categoria])
+}

@@ -9,7 +9,7 @@ export function BalanceSummaryCards({ receitas, despesas, saldo }: ResumoMensal)
 
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <Card>
+      <Card size="sm">
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Receitas do mês</CardTitle>
           <span className="flex size-9 items-center justify-center rounded-xl bg-[#008300]/10 text-[#008300] dark:bg-[#008300]/15">
@@ -21,7 +21,7 @@ export function BalanceSummaryCards({ receitas, despesas, saldo }: ResumoMensal)
         </CardContent>
       </Card>
 
-      <Card>
+      <Card size="sm">
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Despesas do mês</CardTitle>
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -33,7 +33,7 @@ export function BalanceSummaryCards({ receitas, despesas, saldo }: ResumoMensal)
         </CardContent>
       </Card>
 
-      <Card>
+      <Card size="sm">
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Saldo do mês</CardTitle>
           <span

@@ -24,12 +24,12 @@ export function MonthlyTrendChart({ data }: Props) {
   const corDespesa = corPorTema(TIPO_COLORS.despesa, tema);
 
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full min-h-80 lg:min-h-0">
+      <CardHeader className="shrink-0">
         <CardTitle>Receitas x despesas nos últimos meses</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div style={{ width: "100%", height: 300 }}>
+      <CardContent className="min-h-0 flex-1">
+        <div className="size-full min-h-64 lg:min-h-0">
           <ResponsiveContainer>
             <AreaChart data={data} margin={{ left: 8, right: 8, top: 4, bottom: 4 }}>
               <defs>

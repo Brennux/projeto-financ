@@ -28,8 +28,8 @@ export function BudgetGaugeCard({ orcamentos }: Props) {
 
   if (orcamentos.length === 0 || totalLimite === 0) {
     return (
-      <Card className="flex h-full flex-col">
-        <CardHeader>
+      <Card className="flex h-full min-h-56 flex-col lg:min-h-0">
+        <CardHeader className="shrink-0">
           <CardTitle>Orçamento do mês</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-1 items-center">
@@ -52,12 +52,12 @@ export function BudgetGaugeCard({ orcamentos }: Props) {
   const data = [{ nome: "usado", valor: Math.min(percentual, 1) * 100 }];
 
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader>
+    <Card className="flex h-full min-h-56 flex-col lg:min-h-0">
+      <CardHeader className="shrink-0">
         <CardTitle>Orçamento do mês</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col items-center justify-center gap-3">
-        <div className="relative flex size-40 items-center justify-center">
+      <CardContent className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2">
+        <div className="relative flex size-28 shrink items-center justify-center xl:size-36">
           <ResponsiveContainer width="100%" height="100%">
             <RadialBarChart
               data={data}
@@ -77,13 +77,13 @@ export function BudgetGaugeCard({ orcamentos }: Props) {
             </RadialBarChart>
           </ResponsiveContainer>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-semibold tabular-nums" style={{ color: cor }}>
+            <span className="text-2xl font-semibold tabular-nums xl:text-3xl" style={{ color: cor }}>
               {Math.round(percentual * 100)}%
             </span>
             <span className="text-xs text-muted-foreground">utilizado</span>
           </div>
         </div>
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="shrink-0 text-center text-sm text-muted-foreground">
           {formatCurrencyBRL(totalGasto)} de {formatCurrencyBRL(totalLimite)}
         </p>
       </CardContent>

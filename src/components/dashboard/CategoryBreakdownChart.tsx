@@ -17,15 +17,15 @@ export function CategoryBreakdownChart({ data }: Props) {
   const tema = resolvedTheme === "dark" ? "dark" : "light";
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="h-full min-h-72 lg:min-h-0">
+      <CardHeader className="shrink-0">
         <CardTitle>Despesas por categoria</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-0 flex-1 overflow-y-auto">
         {data.length === 0 ? (
           <EmptyState message="Nenhuma despesa registrada nesse período ainda." />
         ) : (
-          <div style={{ width: "100%", height: Math.max(data.length * 40, 120) }}>
+          <div className="h-full w-full" style={{ minHeight: Math.max(data.length * 40, 120) }}>
             <ResponsiveContainer>
               <BarChart data={data} layout="vertical" margin={{ left: 8, right: 48, top: 4, bottom: 4 }}>
                 <CartesianGrid horizontal={false} stroke="var(--border)" />

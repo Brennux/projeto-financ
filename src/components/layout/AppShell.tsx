@@ -45,10 +45,11 @@ interface NavLinkProps {
   icon: React.ComponentType<{ className?: string }>;
   active: boolean;
   showLabel?: boolean;
+  expandable?: boolean;
   onNavigate?: () => void;
 }
 
-function NavLink({ href, label, icon: Icon, active, showLabel, onNavigate }: NavLinkProps) {
+function NavLink({ href, label, icon: Icon, active, showLabel, expandable, onNavigate }: NavLinkProps) {
   return (
     <Link
       href={href}
@@ -57,15 +58,23 @@ function NavLink({ href, label, icon: Icon, active, showLabel, onNavigate }: Nav
       aria-current={active ? "page" : undefined}
       onClick={onNavigate}
       className={cn(
-        "flex items-center gap-3 rounded-2xl transition-colors",
-        showLabel ? "w-full px-3 py-2.5 text-sm font-medium" : "size-11 justify-center",
+        "flex items-center gap-3 rounded-2xl p-3 transition-colors",
+        showLabel && "w-full text-sm font-medium",
         active
           ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-primary/30"
-          : "text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          : cn(
+              "text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              expandable && "bg-sidebar-accent/50",
+            ),
       )}
     >
       <Icon className="size-[1.15rem] shrink-0" />
       {showLabel && <span>{label}</span>}
+      {expandable && (
+        <span className="max-w-0 overflow-hidden opacity-0 whitespace-nowrap transition-[max-width,opacity] duration-300 group-hover/sidebar:max-w-40 group-hover/sidebar:opacity-100">
+          {label}
+        </span>
+      )}
     </Link>
   );
 }
@@ -91,22 +100,23 @@ export function AppShell({ userName, householdName, children }: Props) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-20 shrink-0 flex-col items-center gap-6 border-r border-sidebar-border bg-sidebar py-6 md:flex">
+      <div className="hidden w-20 shrink-0 md:block" aria-hidden />
+      <aside className="group/sidebar fixed inset-y-0 left-0 z-40 hidden w-20 flex-col gap-6 overflow-hidden border-r border-sidebar-border bg-sidebar py-6 transition-[width,box-shadow] duration-300 ease-in-out hover:w-64 hover:shadow-2xl md:flex">
         <Link
           href="/"
           aria-label="Ir para o dashboard"
-          className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+          className="flex size-11 shrink-0 items-center justify-center self-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30"
         >
           <Wallet className="size-5" />
         </Link>
 
-        <nav className="flex flex-1 flex-col items-center gap-2">
+        <nav className="flex flex-1 flex-col gap-2 px-2.5">
           {NAV_ITEMS.map((item) => (
-            <NavLink key={item.href} {...item} active={isActive(pathname, item.href)} />
+            <NavLink key={item.href} {...item} active={isActive(pathname, item.href)} expandable />
           ))}
         </nav>
 
-        <form action={logout}>
+        <form action={logout} className="self-center">
           <button
             type="submit"
             title="Sair"

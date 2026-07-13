@@ -17,11 +17,11 @@ export function TransactionList({ transactions }: Props) {
   const tema = resolvedTheme === "dark" ? "dark" : "light";
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="flex h-full min-h-64 flex-col lg:min-h-0">
+      <CardHeader className="shrink-0">
         <CardTitle>Transações recentes</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-0 flex-1 overflow-y-auto">
         {transactions.length === 0 ? (
           <EmptyState message="Nenhuma transação nesse período. Mande uma mensagem no self-chat do WhatsApp ou adicione manualmente." />
         ) : (

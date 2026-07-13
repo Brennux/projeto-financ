@@ -7,7 +7,6 @@ import { MonthlyTrendChart } from "@/components/dashboard/MonthlyTrendChart";
 import { PeriodPicker } from "@/components/dashboard/PeriodPicker";
 import { TransactionList } from "@/components/dashboard/TransactionList";
 import { PageContainer } from "@/components/shared/PageContainer";
-import { PageHeader } from "@/components/shared/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { verifySession } from "@/lib/auth/dal";
 import { getOrcamentosComGasto } from "@/lib/queries/budgets";
@@ -42,34 +41,39 @@ export default async function DashboardPage({ searchParams }: Props) {
   ]);
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="Dashboard"
-        description="Registrado automaticamente via WhatsApp, ou adicione manualmente."
-        actions={
+    <PageContainer className="flex flex-col gap-3 p-3 md:p-4 lg:h-[calc(100dvh-4rem)] lg:max-h-[calc(100dvh-4rem)] lg:overflow-hidden">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <PeriodPicker referenceDate={referenceDate} />
           <Link href="/transactions" className={buttonVariants({ variant: "outline", size: "sm" })}>
             Ver todas as transações
           </Link>
-        }
-      />
+        </div>
+      </div>
 
-      <PeriodPicker referenceDate={referenceDate} />
+      <div className="shrink-0">
+        <BalanceSummaryCards {...resumo} />
+      </div>
 
-      <BalanceSummaryCards {...resumo} />
-
-      <div className="grid items-stretch gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid min-h-0 gap-3 lg:flex-1 lg:grid-cols-12 lg:grid-rows-2">
+        <div className="min-h-0 lg:col-span-7">
           <MonthlyTrendChart data={tendencia} />
         </div>
-        <BudgetGaugeCard orcamentos={orcamentos} />
-      </div>
+        <div className="min-h-0 lg:col-span-5">
+          <BudgetGaugeCard orcamentos={orcamentos} />
+        </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-2">
-        <CategoryBreakdownChart data={categorias} />
-        <BudgetProgressCard orcamentos={orcamentos} />
+        <div className="min-h-0 lg:col-span-4">
+          <CategoryBreakdownChart data={categorias} />
+        </div>
+        <div className="min-h-0 lg:col-span-4">
+          <BudgetProgressCard orcamentos={orcamentos} />
+        </div>
+        <div className="min-h-0 lg:col-span-4">
+          <TransactionList transactions={recentes} />
+        </div>
       </div>
-
-      <TransactionList transactions={recentes} />
     </PageContainer>
   );
 }

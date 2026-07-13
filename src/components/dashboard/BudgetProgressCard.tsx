@@ -11,8 +11,8 @@ interface Props {
 
 export function BudgetProgressCard({ orcamentos }: Props) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="flex h-full min-h-56 flex-col lg:min-h-0">
+      <CardHeader className="shrink-0">
         <CardTitle>Orçamentos do mês</CardTitle>
         <CardAction>
           <Link href="/settings/budgets" className={buttonVariants({ variant: "outline", size: "sm" })}>
@@ -20,7 +20,7 @@ export function BudgetProgressCard({ orcamentos }: Props) {
           </Link>
         </CardAction>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-0 flex-1 overflow-y-auto">
         {orcamentos.length === 0 ? (
           <EmptyState
             message="Nenhum orçamento definido ainda."

@@ -6,11 +6,15 @@ export default async function AppLayout({ children }: Readonly<{ children: React
   const session = await verifySession();
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { nome: true, household: { select: { name: true } } },
+    select: { nome: true, email: true, household: { select: { name: true } } },
   });
 
   return (
-    <AppShell userName={user?.nome ?? "Você"} householdName={user?.household.name ?? "Gastos"}>
+    <AppShell
+      userName={user?.nome ?? "Você"}
+      userEmail={user?.email ?? ""}
+      householdName={user?.household.name ?? "Gastos"}
+    >
       {children}
     </AppShell>
   );

@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { Download, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -24,6 +23,7 @@ import { formatCurrencyBRL, formatDatePtBr } from "@/lib/format";
 import { CATEGORIAS } from "@/lib/constants/categorias";
 import { getCategoriaIcon } from "@/lib/constants/categoria-icons";
 import { TIPO_COLORS, corPorTema } from "@/lib/constants/chart-colors";
+import { useTema } from "@/hooks/use-tema";
 import { TransactionFormDialog } from "./TransactionFormDialog";
 import type { TransacaoResumida } from "@/lib/queries/transactions";
 
@@ -59,8 +59,7 @@ function exportarCsv(transacoes: TransacaoResumida[]) {
 
 export function TransactionsTable({ transacoes }: Props) {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
-  const tema = resolvedTheme === "dark" ? "dark" : "light";
+  const tema = useTema();
   const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>("todos");
   const [filtroCategoria, setFiltroCategoria] = useState<string>("todas");
   const [filtroTexto, setFiltroTexto] = useState("");

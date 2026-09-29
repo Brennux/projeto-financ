@@ -1,10 +1,10 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrencyBRL } from "@/lib/format";
 import { TIPO_COLORS, corPorTema } from "@/lib/constants/chart-colors";
+import { useTema } from "@/hooks/use-tema";
 import type { PontoTendencia } from "@/lib/queries/transactions";
 
 interface Props {
@@ -17,8 +17,7 @@ const NOMES_SERIE = {
 } as const;
 
 export function MonthlyTrendChart({ data }: Props) {
-  const { resolvedTheme } = useTheme();
-  const tema = resolvedTheme === "dark" ? "dark" : "light";
+  const tema = useTema();
 
   const corReceita = corPorTema(TIPO_COLORS.receita, tema);
   const corDespesa = corPorTema(TIPO_COLORS.despesa, tema);

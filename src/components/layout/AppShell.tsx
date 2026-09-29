@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { WhatsAppStatusIndicator } from "@/components/layout/WhatsAppStatusIndicator";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -81,11 +82,12 @@ function NavLink({ href, label, icon: Icon, active, showLabel, expandable, onNav
 
 interface Props {
   userName: string;
+  userEmail: string;
   householdName: string;
   children: React.ReactNode;
 }
 
-export function AppShell({ userName, householdName, children }: Props) {
+export function AppShell({ userName, userEmail, householdName, children }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -211,9 +213,9 @@ export function AppShell({ userName, householdName, children }: Props) {
               href="/settings/whatsapp"
               title="WhatsApp"
               aria-label="Configurar WhatsApp"
-              className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="relative flex size-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <MessageCircle className="size-[1.1rem]" />
+              <WhatsAppStatusIndicator />
             </Link>
             <ThemeToggle />
             <div className="ml-1 flex items-center gap-2 border-l border-border pl-3">
@@ -225,7 +227,7 @@ export function AppShell({ userName, householdName, children }: Props) {
               </div>
               <div className="hidden flex-col leading-tight sm:flex">
                 <span className="text-sm font-medium">{userName}</span>
-                <span className="text-xs font-medium text-primary">{householdName}</span>
+                <span className="text-xs text-muted-foreground">{userEmail}</span>
               </div>
             </div>
           </div>

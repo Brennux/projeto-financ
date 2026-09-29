@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrencyBRL } from "@/lib/format";
 import { STATUS_COLORS, corPorTema } from "@/lib/constants/chart-colors";
+import { useTema } from "@/hooks/use-tema";
 import type { OrcamentoComGasto, StatusOrcamento } from "@/lib/queries/budgets";
 
 interface Props {
@@ -20,8 +20,7 @@ function statusAgregado(percentual: number): StatusOrcamento {
 }
 
 export function BudgetGaugeCard({ orcamentos }: Props) {
-  const { resolvedTheme } = useTheme();
-  const tema = resolvedTheme === "dark" ? "dark" : "light";
+  const tema = useTema();
 
   const totalLimite = orcamentos.reduce((soma, o) => soma + o.limite, 0);
   const totalGasto = orcamentos.reduce((soma, o) => soma + o.gasto, 0);

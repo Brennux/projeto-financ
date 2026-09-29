@@ -1,11 +1,11 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrencyBRL } from "@/lib/format";
 import { CATEGORIA_COLORS, corPorTema } from "@/lib/constants/chart-colors";
+import { useTema } from "@/hooks/use-tema";
 import type { CategoriaTotal } from "@/lib/queries/transactions";
 
 interface Props {
@@ -13,8 +13,7 @@ interface Props {
 }
 
 export function CategoryBreakdownChart({ data }: Props) {
-  const { resolvedTheme } = useTheme();
-  const tema = resolvedTheme === "dark" ? "dark" : "light";
+  const tema = useTema();
 
   return (
     <Card className="h-full min-h-72 lg:min-h-0">

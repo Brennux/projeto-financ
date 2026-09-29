@@ -35,6 +35,10 @@ export function WhatsAppConnectPanel() {
   const [data, setData] = useState<StatusResponse>({ status: null, qr: null, phoneNumber: null });
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [timedOut, setTimedOut] = useState(false);
+  // Incrementado a cada tentativa manual, pra reiniciar o polling mesmo
+  // quando o status retornado for igual ao que ja estava (ex.: continua
+  // "pending" porque o worker ainda nao pegou a conta).
+  const [pollGeneration, setPollGeneration] = useState(0);
   const lastQrRef = useRef<string | null>(null);
 
   // Busca o status uma vez ao montar.
@@ -88,10 +92,11 @@ export function WhatsAppConnectPanel() {
       ignore = true;
       clearInterval(interval);
     };
-  }, [data.status]);
+  }, [data.status, pollGeneration]);
 
   async function handleConnect() {
     setTimedOut(false);
+    setPollGeneration((g) => g + 1);
     const res = await fetch("/api/whatsapp/connect", { method: "POST" });
     if (res.ok) {
       const json: { status: WhatsAppStatus } = await res.json();
@@ -120,9 +125,9 @@ export function WhatsAppConnectPanel() {
 
       {timedOut && <p className="text-sm text-destructive">Tempo esgotado. Tente novamente.</p>}
 
-      {!emAndamento && (
+      {(!emAndamento || timedOut) && (
         <Button type="button" onClick={handleConnect}>
-          {data.status ? "Reconectar" : "Conectar WhatsApp"}
+          {timedOut ? "Tentar novamente" : data.status ? "Reconectar" : "Conectar WhatsApp"}
         </Button>
       )}
     </div>

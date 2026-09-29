@@ -42,22 +42,44 @@ model User {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  household       Household         @relation(fields: [householdId], references: [id], onDelete: Restrict)
-  transactions    Transaction[]
-  whatsAppAccount WhatsAppAccount?
-  invitesCriados  HouseholdInvite[] @relation("HouseholdInviteCreatedBy")
+  // Identidade do WhatsApp -- capturada automaticamente na vinculacao
+  // (WhatsAppLinkCode), nunca digitada manualmente. whatsAppJid e a forma
+  // (@s.whatsapp.net ou @lid) que o servidor usou pra enderecar a ultima
+  // mensagem recebida; whatsAppJidAlt e a forma alternativa PN<->LID que o
+  // servidor reporta no mesmo envelope, quando presente.
+  whatsAppJid      String?   @unique
+  whatsAppJidAlt   String?
+  telefone         String?
+  whatsAppLinkedAt DateTime?
+
+  household        Household         @relation(fields: [householdId], references: [id], onDelete: Restrict)
+  transactions     Transaction[]
+  invitesCriados   HouseholdInvite[] @relation("HouseholdInviteCreatedBy")
+  whatsAppLinkCode WhatsAppLinkCode?
 
   @@index([householdId])
 }
 
-model WhatsAppAccount {
+// Linha unica (id fixo, ver src/lib/whatsapp/session.ts) -- estado da unica
+// conexao Baileys compartilhada por todo o household.
+model WhatsAppSession {
   id           String         @id @default(cuid())
-  userId       String         @unique
   status       WhatsAppStatus @default(pending)
   qr           String?
   phoneNumber  String?
   criadoEm     DateTime       @default(now())
   atualizadoEm DateTime       @updatedAt
+}
+
+// Codigo curto de posse-de-numero: gerado no app, enviado pelo proprio
+// usuario via WhatsApp, resgatado atomicamente pelo worker.
+model WhatsAppLinkCode {
+  id       String    @id @default(cuid())
+  code     String    @unique
+  userId   String    @unique
+  expiraEm DateTime
+  usadoEm  DateTime?
+  criadoEm DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

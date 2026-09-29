@@ -1,66 +1,46 @@
-import path from "node:path";
 import type { WASocket } from "baileys";
-import prisma from "@/lib/prisma";
-import { connectWhatsApp, logger } from "@/lib/whatsapp/connection";
+import { connectWhatsApp } from "@/lib/whatsapp/connection";
 import { handleMessagesUpsert } from "@/lib/whatsapp/messageHandler";
+import { getOrCreateSession } from "@/lib/whatsapp/session";
+import { logger } from "@/lib/whatsapp/logger";
 
 const AUTH_DIR = process.env.WHATSAPP_AUTH_DIR ?? ".baileys-auth";
 const POLL_INTERVAL_MS = 3000;
 
-// null = reivindicado, handshake do Baileys ainda em andamento.
-const active = new Map<string, WASocket | null>();
+let active: WASocket | null = null;
+let starting = false;
 
-async function startConnection(userId: string, householdId: string): Promise<void> {
-  if (active.has(userId)) return;
-  active.set(userId, null);
-
+async function startConnection(): Promise<void> {
+  if (active || starting) return;
+  starting = true;
   try {
-    const sock = await connectWhatsApp(
-      {
-        userId,
-        authDir: path.join(AUTH_DIR, userId),
-        onTerminal: () => active.delete(userId),
-      },
-      (sock, upsert) => handleMessagesUpsert(sock, upsert, { userId, householdId }),
+    active = await connectWhatsApp(
+      { authDir: AUTH_DIR, onTerminal: () => { active = null; } },
+      handleMessagesUpsert,
     );
-    active.set(userId, sock);
   } catch (err) {
-    active.delete(userId);
-    logger.error({ err, userId }, "Falha ao iniciar conexao do WhatsApp, tenta de novo no proximo ciclo.");
+    logger.error({ err }, "Falha ao iniciar conexao do WhatsApp, tenta de novo no proximo ciclo.");
+  } finally {
+    starting = false;
   }
 }
 
 /**
- * Um unico ciclo cobre tanto "retomar no boot" quanto "notar pareamento
- * novo": busca tudo que nao esteja logged_out (pending/connecting/qr_ready/
- * connected/disconnected) e garante que exista uma conexao ativa em memoria
- * pra cada um. Contas "pending" sao reivindicadas atomicamente antes de
- * iniciar a conexao, pra nunca abrir duas sessoes Baileys pro mesmo usuario
- * (ex.: se por engano rodar duas instancias deste worker).
+ * Ha uma unica conexao Baileys compartilhada por todo o household (ao
+ * contrario do antigo modelo de N contas/N sockets), entao nao precisa mais
+ * de claim atomico entre contas concorrentes -- so reagir ao status da linha
+ * singleton pra saber se deve (re)conectar ou esperar o clique manual em
+ * "Reconectar" (apos um logged_out).
  */
 async function tick(): Promise<void> {
-  const accounts = await prisma.whatsAppAccount.findMany({
-    where: { status: { not: "logged_out" } },
-    select: { userId: true, status: true, user: { select: { householdId: true } } },
-  });
-
-  for (const account of accounts) {
-    if (active.has(account.userId)) continue;
-
-    if (account.status === "pending") {
-      const claim = await prisma.whatsAppAccount.updateMany({
-        where: { userId: account.userId, status: "pending" },
-        data: { status: "connecting" },
-      });
-      if (claim.count === 0) continue; // outro ciclo/instancia ja reivindicou
-    }
-
-    void startConnection(account.userId, account.user.householdId);
-  }
+  if (active) return;
+  const session = await getOrCreateSession();
+  if (session.status === "logged_out") return;
+  void startConnection();
 }
 
 async function main(): Promise<void> {
-  logger.info("Worker do WhatsApp iniciado, monitorando contas pendentes/conectadas.");
+  logger.info("Worker do WhatsApp iniciado, monitorando a sessao compartilhada.");
 
   for (;;) {
     try {

@@ -48,7 +48,7 @@ export async function signup(_state: AuthFormState | undefined, formData: FormDa
         }
         householdId = invite.householdId;
       } else {
-        const household = await tx.household.create({ data: { name: `Familia de ${nome}` } });
+        const household = await tx.household.create({ data: { name: nome } });
         householdId = household.id;
       }
 

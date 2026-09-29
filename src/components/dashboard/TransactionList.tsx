@@ -1,11 +1,11 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrencyBRL, formatDatePtBr } from "@/lib/format";
 import { getCategoriaIcon } from "@/lib/constants/categoria-icons";
 import { TIPO_COLORS, corPorTema } from "@/lib/constants/chart-colors";
+import { useTema } from "@/hooks/use-tema";
 import type { TransacaoResumida } from "@/lib/queries/transactions";
 
 interface Props {
@@ -13,8 +13,7 @@ interface Props {
 }
 
 export function TransactionList({ transactions }: Props) {
-  const { resolvedTheme } = useTheme();
-  const tema = resolvedTheme === "dark" ? "dark" : "light";
+  const tema = useTema();
 
   return (
     <Card className="flex h-full min-h-64 flex-col lg:min-h-0">

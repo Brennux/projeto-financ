@@ -1,0 +1,21 @@
+# Troque "app" pelo nome que o `fly launch` sugerir (tem que ser unico
+# global na Fly) antes do primeiro deploy.
+app = "projeto-financ-whatsapp"
+primary_region = "gru"
+
+[build]
+
+[env]
+  WHATSAPP_AUTH_DIR = "/data/baileys-auth"
+  WHATSAPP_LOG_LEVEL = "info"
+
+# DATABASE_URL NAO fica aqui -- vai como secret (`fly secrets set`), nunca
+# em texto plano num arquivo versionado.
+
+[[mounts]]
+  source = "baileys_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

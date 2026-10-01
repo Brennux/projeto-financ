@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "Gastos",
+  title: "FINAC Pro",
   description: "Controle de gastos e receitas via WhatsApp",
 };
 

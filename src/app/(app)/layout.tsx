@@ -13,7 +13,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
     <AppShell
       userName={user?.nome ?? "Você"}
       userEmail={user?.email ?? ""}
-      householdName={user?.household.name ?? "Gastos"}
+      householdName={user?.household.name ?? "FINAC Pro"}
     >
       {children}
     </AppShell>

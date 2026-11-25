@@ -17,13 +17,8 @@ describe("budgetInputSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejeita categoria receita-only (Salário)", () => {
-    const result = budgetInputSchema.safeParse({ categoria: "Salário", limite: 100 });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejeita categoria desconhecida", () => {
-    const result = budgetInputSchema.safeParse({ categoria: "NaoExiste", limite: 100 });
+  it("rejeita categoria vazia", () => {
+    const result = budgetInputSchema.safeParse({ categoria: "  ", limite: 100 });
     expect(result.success).toBe(false);
   });
 });

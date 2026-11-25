@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { FitToHeight } from "@/components/shared/FitToHeight";
 import { BudgetProgressList } from "@/components/budgets/BudgetProgressList";
 import type { OrcamentoComGasto } from "@/lib/queries/budgets";
 
@@ -10,6 +11,10 @@ interface Props {
 }
 
 export function BudgetProgressCard({ orcamentos }: Props) {
+  // So cabem alguns sem rolagem -- os mais estourados primeiro, pra nunca
+  // esconder justamente o que precisa de atencao.
+  const porUrgencia = [...orcamentos].sort((a, b) => b.percentual - a.percentual);
+
   return (
     <Card className="flex h-full min-h-56 flex-col lg:min-h-0">
       <CardHeader className="shrink-0">
@@ -20,7 +25,7 @@ export function BudgetProgressCard({ orcamentos }: Props) {
           </Link>
         </CardAction>
       </CardHeader>
-      <CardContent className="min-h-0 flex-1 overflow-y-auto">
+      <CardContent className="min-h-0 flex-1">
         {orcamentos.length === 0 ? (
           <EmptyState
             message="Nenhum orçamento definido ainda."
@@ -31,7 +36,9 @@ export function BudgetProgressCard({ orcamentos }: Props) {
             }
           />
         ) : (
-          <BudgetProgressList orcamentos={orcamentos} />
+          <FitToHeight>
+            <BudgetProgressList orcamentos={porUrgencia} />
+          </FitToHeight>
         )}
       </CardContent>
     </Card>

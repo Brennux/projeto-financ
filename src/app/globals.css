@@ -32,6 +32,7 @@
     --color-secondary: var(--secondary);
     --color-primary-foreground: var(--primary-foreground);
     --color-primary: var(--primary);
+    --color-primary-2: var(--primary-2);
     --color-popover-foreground: var(--popover-foreground);
     --color-popover: var(--popover);
     --color-card-foreground: var(--card-foreground);
@@ -45,41 +46,61 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    /* Elevacao (definida por tema la embaixo): shadow-card, shadow-pop. */
+    --shadow-card: var(--elev-card);
+    --shadow-pop: var(--elev-pop);
+    --shadow-field: var(--elev-field);
 }
 
+/*
+ * Tema claro "papel lavanda": nada de branco puro. Fundo lilas-acinzentado,
+ * cards um degrau mais claros (off-white) e campos um degrau mais escuros
+ * que o card -- o contraste vem das camadas, nao do brilho.
+ */
 :root {
-    --background: oklch(0.985 0.004 293);
-    --foreground: oklch(0.19 0.025 290);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.19 0.025 290);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.19 0.025 290);
-    --primary: oklch(0.556 0.223 293);
-    --primary-foreground: oklch(0.99 0.005 293);
-    --secondary: oklch(0.955 0.008 291);
+    --background: oklch(0.935 0.012 288);
+    --foreground: oklch(0.21 0.026 288);
+    --card: oklch(0.968 0.006 288);
+    --card-foreground: oklch(0.21 0.026 288);
+    --popover: oklch(0.976 0.005 288);
+    --popover-foreground: oklch(0.21 0.026 288);
+    --primary: oklch(0.53 0.2 293);
+    --primary-foreground: oklch(0.985 0.005 293);
+    --secondary: oklch(0.915 0.014 288);
     --secondary-foreground: oklch(0.27 0.03 291);
-    --muted: oklch(0.955 0.008 291);
-    --muted-foreground: oklch(0.52 0.02 288);
-    --accent: oklch(0.93 0.03 292);
-    --accent-foreground: oklch(0.32 0.08 293);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.91 0.012 291);
-    --input: oklch(0.91 0.012 291);
-    --ring: oklch(0.556 0.223 293);
-    --chart-1: oklch(0.556 0.223 293);
+    --muted: oklch(0.918 0.013 288);
+    --muted-foreground: oklch(0.47 0.024 288);
+    --accent: oklch(0.9 0.035 292);
+    --accent-foreground: oklch(0.3 0.08 293);
+    --destructive: oklch(0.56 0.22 27);
+    --border: oklch(0.875 0.015 288);
+    --input: oklch(0.86 0.017 288);
+    --ring: oklch(0.53 0.2 293);
+    --chart-1: oklch(0.53 0.2 293);
     --chart-2: oklch(0.62 0.19 260);
     --chart-3: oklch(0.7 0.16 320);
     --chart-4: oklch(0.6 0.02 290);
     --chart-5: oklch(0.4 0.02 290);
     --radius: 0.85rem;
-    --sidebar: oklch(0.975 0.006 292);
-    --sidebar-foreground: oklch(0.27 0.03 291);
-    --sidebar-primary: oklch(0.556 0.223 293);
-    --sidebar-primary-foreground: oklch(0.99 0.005 293);
-    --sidebar-accent: oklch(0.93 0.03 292);
-    --sidebar-accent-foreground: oklch(0.32 0.08 293);
-    --sidebar-border: oklch(0.91 0.012 291);
-    --sidebar-ring: oklch(0.556 0.223 293);
+    --sidebar: oklch(0.955 0.009 288);
+    --sidebar-foreground: oklch(0.3 0.03 291);
+    --sidebar-primary: oklch(0.53 0.2 293);
+    --sidebar-primary-foreground: oklch(0.985 0.005 293);
+    --sidebar-accent: oklch(0.905 0.03 292);
+    --sidebar-accent-foreground: oklch(0.3 0.08 293);
+    --sidebar-border: oklch(0.875 0.015 288);
+    --sidebar-ring: oklch(0.53 0.2 293);
+
+    /* Parceira do primario nos degrades (logo, item ativo, avatar). */
+    --primary-2: oklch(0.58 0.16 262);
+
+    /* Sombras no tom da propria paleta (derivadas do texto), nunca preto chapado. */
+    --elev-card: 0 1px 2px color-mix(in oklch, var(--foreground) 6%, transparent), 0 8px 24px -10px color-mix(in oklch, var(--foreground) 18%, transparent);
+    --elev-pop: 0 2px 6px color-mix(in oklch, var(--foreground) 8%, transparent), 0 28px 56px -18px color-mix(in oklch, var(--foreground) 30%, transparent);
+    --elev-field: inset 0 1px 2px color-mix(in oklch, var(--foreground) 7%, transparent);
+    --ambient-1: color-mix(in oklch, var(--primary) 13%, transparent);
+    --ambient-2: color-mix(in oklch, var(--primary-2) 9%, transparent);
+    --grao: 0.11;
 }
 
 .dark {
@@ -119,6 +140,205 @@
     --sidebar-accent-foreground: oklch(0.97 0.004 291);
     --sidebar-border: oklch(1 0 0 / 8%);
     --sidebar-ring: oklch(0.8065 0.1039 291.32);
+
+    --primary-2: oklch(0.72 0.12 262);
+
+    /* No escuro: brilho fino na borda de cima (luz vindo de cima) + sombra funda. */
+    --elev-card: inset 0 1px 0 0 oklch(1 0 0 / 0.045), 0 1px 2px oklch(0 0 0 / 0.3), 0 16px 36px -18px oklch(0 0 0 / 0.8);
+    --elev-pop: inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 2px 8px oklch(0 0 0 / 0.35), 0 28px 60px -18px oklch(0 0 0 / 0.85);
+    --elev-field: inset 0 1px 2px oklch(0 0 0 / 0.35);
+    --ambient-1: color-mix(in oklch, var(--primary) 9%, transparent);
+    --ambient-2: color-mix(in oklch, var(--primary-2) 6%, transparent);
+    --grao: 0.08;
+}
+
+/*
+ * Paletas alternativas, escolhidas pelo usuario (ficam em <html data-paleta>,
+ * ver PaletaPicker). Lavanda e o padrao (:root / .dark acima). Claro usa
+ * :not(.dark) e escuro .dark -- mesma especificidade, uma nunca vaza pra outra.
+ * Gerado por um script a partir das cores da previa aprovada.
+ */
+:root[data-paleta="champanhe"]:not(.dark) {
+    --background: #e9e6df;
+    --foreground: #221f19;
+    --card: #f5f3ee;
+    --popover: #f8f6f2;
+    --primary: #8b6a2b;
+    --primary-2: #b58f4c;
+    --primary-foreground: #ffffff;
+    --secondary: #e4e0d7;
+    --secondary-foreground: #2e2a22;
+    --muted: #e4e0d7;
+    --muted-foreground: #68614f;
+    --accent: #e9dec8;
+    --accent-foreground: #4a3a17;
+    --destructive: #b44a3c;
+    --border: #d8d2c5;
+    --input: #d2cbbd;
+    --sidebar: #efece6;
+    --sidebar-foreground: #2e2a22;
+    --card-foreground: #221f19;
+    --popover-foreground: #221f19;
+    --ring: #8b6a2b;
+    --chart-1: #8b6a2b;
+    --sidebar-primary: #8b6a2b;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e9dec8;
+    --sidebar-accent-foreground: #4a3a17;
+    --sidebar-border: #d8d2c5;
+    --sidebar-ring: #8b6a2b;
+}
+:root[data-paleta="champanhe"].dark {
+    --background: #0d0d0e;
+    --foreground: #f4f1ea;
+    --card: #17171a;
+    --popover: #1c1c1f;
+    --primary: #e0c48f;
+    --primary-2: #b38a4c;
+    --primary-foreground: #1f170a;
+    --secondary: #26262a;
+    --secondary-foreground: #f4f1ea;
+    --muted: #1f1f22;
+    --muted-foreground: #aaa395;
+    --accent: #2b2620;
+    --accent-foreground: #f4f1ea;
+    --destructive: #f08e7c;
+    --border: rgb(255 240 215 / 0.08);
+    --input: rgb(255 240 215 / 0.14);
+    --sidebar: #0d0d0e;
+    --sidebar-foreground: #e6e1d6;
+    --card-foreground: #f4f1ea;
+    --popover-foreground: #f4f1ea;
+    --ring: #e0c48f;
+    --chart-1: #e0c48f;
+    --sidebar-primary: #e0c48f;
+    --sidebar-primary-foreground: #1f170a;
+    --sidebar-accent: #2b2620;
+    --sidebar-accent-foreground: #f4f1ea;
+    --sidebar-border: rgb(255 240 215 / 0.08);
+    --sidebar-ring: #e0c48f;
+}
+
+:root[data-paleta="oceano"]:not(.dark) {
+    --background: #e2e8f1;
+    --foreground: #131e35;
+    --card: #f1f4f9;
+    --popover: #f5f7fb;
+    --primary: #2c62c6;
+    --primary-2: #1797b3;
+    --primary-foreground: #ffffff;
+    --secondary: #dde4ee;
+    --secondary-foreground: #1b2a47;
+    --muted: #dde4ee;
+    --muted-foreground: #53617e;
+    --accent: #d6e2f5;
+    --accent-foreground: #1b3b78;
+    --destructive: #c2433e;
+    --border: #cdd6e3;
+    --input: #c5cfde;
+    --sidebar: #e9eef5;
+    --sidebar-foreground: #1b2a47;
+    --card-foreground: #131e35;
+    --popover-foreground: #131e35;
+    --ring: #2c62c6;
+    --chart-1: #2c62c6;
+    --sidebar-primary: #2c62c6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #d6e2f5;
+    --sidebar-accent-foreground: #1b3b78;
+    --sidebar-border: #cdd6e3;
+    --sidebar-ring: #2c62c6;
+}
+:root[data-paleta="oceano"].dark {
+    --background: #070e1b;
+    --foreground: #eef4ff;
+    --card: #0f1829;
+    --popover: #131d31;
+    --primary: #7ec8ff;
+    --primary-2: #6f86ff;
+    --primary-foreground: #052038;
+    --secondary: #18253d;
+    --secondary-foreground: #eef4ff;
+    --muted: #142036;
+    --muted-foreground: #93a5c2;
+    --accent: #16294a;
+    --accent-foreground: #eef4ff;
+    --destructive: #ff8484;
+    --border: rgb(160 200 255 / 0.08);
+    --input: rgb(160 200 255 / 0.14);
+    --sidebar: #070e1b;
+    --sidebar-foreground: #d5e0f3;
+    --card-foreground: #eef4ff;
+    --popover-foreground: #eef4ff;
+    --ring: #7ec8ff;
+    --chart-1: #7ec8ff;
+    --sidebar-primary: #7ec8ff;
+    --sidebar-primary-foreground: #052038;
+    --sidebar-accent: #16294a;
+    --sidebar-accent-foreground: #eef4ff;
+    --sidebar-border: rgb(160 200 255 / 0.08);
+    --sidebar-ring: #7ec8ff;
+}
+
+:root[data-paleta="salvia"]:not(.dark) {
+    --background: #e3e8e2;
+    --foreground: #18221c;
+    --card: #f1f4ef;
+    --popover: #f5f7f3;
+    --primary: #3d6e53;
+    --primary-2: #8c7a45;
+    --primary-foreground: #ffffff;
+    --secondary: #dde3db;
+    --secondary-foreground: #223027;
+    --muted: #dde3db;
+    --muted-foreground: #56665c;
+    --accent: #d5e3d6;
+    --accent-foreground: #23432f;
+    --destructive: #b9483c;
+    --border: #cfd7cd;
+    --input: #c7d0c5;
+    --sidebar: #eaeee8;
+    --sidebar-foreground: #223027;
+    --card-foreground: #18221c;
+    --popover-foreground: #18221c;
+    --ring: #3d6e53;
+    --chart-1: #3d6e53;
+    --sidebar-primary: #3d6e53;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #d5e3d6;
+    --sidebar-accent-foreground: #23432f;
+    --sidebar-border: #cfd7cd;
+    --sidebar-ring: #3d6e53;
+}
+:root[data-paleta="salvia"].dark {
+    --background: #0b0f0d;
+    --foreground: #eef3ef;
+    --card: #141a17;
+    --popover: #18201c;
+    --primary: #b4d6bd;
+    --primary-2: #d8c896;
+    --primary-foreground: #11251a;
+    --secondary: #1e2723;
+    --secondary-foreground: #eef3ef;
+    --muted: #19211d;
+    --muted-foreground: #a0aea6;
+    --accent: #1d2a22;
+    --accent-foreground: #eef3ef;
+    --destructive: #f39282;
+    --border: rgb(215 245 225 / 0.075);
+    --input: rgb(215 245 225 / 0.13);
+    --sidebar: #0b0f0d;
+    --sidebar-foreground: #dbe5de;
+    --card-foreground: #eef3ef;
+    --popover-foreground: #eef3ef;
+    --ring: #b4d6bd;
+    --chart-1: #b4d6bd;
+    --sidebar-primary: #b4d6bd;
+    --sidebar-primary-foreground: #11251a;
+    --sidebar-accent: #1d2a22;
+    --sidebar-accent-foreground: #eef3ef;
+    --sidebar-border: rgb(215 245 225 / 0.075);
+    --sidebar-ring: #b4d6bd;
 }
 
 @layer base {
@@ -126,9 +346,199 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    transition: background-color 0.5s ease, color 0.5s ease;
     }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 28%, transparent);
+  }
+  /* Barra de rolagem fina e no tom do tema. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+  }
   html {
     @apply font-sans;
     }
+}
+
+/*
+ * Entrada em cascata: os filhos aparecem um depois do outro (subindo de
+ * leve). Uso: className="stagger-in" no container.
+ */
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+@utility stagger-in {
+  & > * {
+    animation: entrar 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  & > *:nth-child(2) { animation-delay: 50ms; }
+  & > *:nth-child(3) { animation-delay: 100ms; }
+  & > *:nth-child(4) { animation-delay: 150ms; }
+  & > *:nth-child(5) { animation-delay: 200ms; }
+  & > *:nth-child(6) { animation-delay: 250ms; }
+  & > *:nth-child(7) { animation-delay: 300ms; }
+  & > *:nth-child(n + 8) { animation-delay: 350ms; }
+}
+
+/* Mesma ideia, mais rapida, pra linhas de lista. */
+@utility stagger-rows {
+  & > * {
+    animation: entrar 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  & > *:nth-child(2) { animation-delay: 25ms; }
+  & > *:nth-child(3) { animation-delay: 50ms; }
+  & > *:nth-child(4) { animation-delay: 75ms; }
+  & > *:nth-child(5) { animation-delay: 100ms; }
+  & > *:nth-child(6) { animation-delay: 125ms; }
+  & > *:nth-child(7) { animation-delay: 150ms; }
+  & > *:nth-child(8) { animation-delay: 175ms; }
+  & > *:nth-child(n + 9) { animation-delay: 200ms; }
+}
+
+/* Barra de progresso "enchendo" ao aparecer (orcamentos). */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/*
+ * Fundo vivo (FundoAmbiente): duas luzes difusas na cor da paleta que
+ * derivam devagar + granulado fino por cima, que tira o aspecto "plastico".
+ */
+.fundo-ambiente {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fundo-ambiente__luz {
+  position: absolute;
+  border-radius: 9999px;
+  will-change: transform;
+}
+.fundo-ambiente__luz--a {
+  width: 72rem;
+  height: 72rem;
+  left: -24rem;
+  top: -36rem;
+  background: radial-gradient(circle, var(--ambient-1), transparent 62%);
+  animation: deriva-a 38s ease-in-out infinite alternate;
+}
+.fundo-ambiente__luz--b {
+  width: 60rem;
+  height: 60rem;
+  right: -22rem;
+  top: -26rem;
+  background: radial-gradient(circle, var(--ambient-2), transparent 62%);
+  animation: deriva-b 46s ease-in-out infinite alternate;
+}
+.fundo-ambiente::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: var(--grao);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+@keyframes deriva-a {
+  to {
+    transform: translate(14rem, 10rem) scale(1.08);
+  }
+}
+@keyframes deriva-b {
+  to {
+    transform: translate(-12rem, 14rem) scale(0.94);
+  }
+}
+
+/*
+ * Luz que segue o mouse nos cards (LuzNosCards define --luz-x/--luz-y e
+ * data-luz no card sob o cursor): brilho suave por dentro e a borda
+ * acendendo so perto do cursor.
+ */
+[data-slot="card"] {
+  position: relative;
+}
+[data-slot="card"]::before,
+[data-slot="card"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+[data-slot="card"]::before {
+  background: radial-gradient(
+    520px circle at var(--luz-x, 50%) var(--luz-y, 50%),
+    color-mix(in oklch, var(--primary) 8%, transparent),
+    transparent 60%
+  );
+}
+[data-slot="card"]::after {
+  padding: 1px;
+  background: radial-gradient(
+    280px circle at var(--luz-x, 50%) var(--luz-y, 50%),
+    color-mix(in oklch, var(--primary) 75%, transparent),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+[data-slot="card"][data-luz]::before,
+[data-slot="card"][data-luz]::after {
+  opacity: 1;
+}
+
+/* Linha que "se desenha" ao aparecer (use com pathLength="1" no <path>). */
+@keyframes desenhar-linha {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.linha-desenhada {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: desenhar-linha 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+}
+
+/* Ponto "vivo" no ultimo mes do grafico. */
+@keyframes pulso-ponto {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.55;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.ponto-pulso {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulso-ponto 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Quem pediu pro sistema reduzir movimento nao ve animacao nenhuma. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,28 +1,10 @@
-import type { Categoria } from "./categorias";
 import type { Tipo } from "@/lib/parser";
+import type { CorTema } from "@/lib/categorias/cores";
 
-export interface CorTema {
-  light: string;
-  dark: string;
-}
+export type { CorTema };
 
-/**
- * Cores categoricas fixas (paleta validada contra CVD/contraste), uma por
- * categoria -- nunca geradas dinamicamente. "Outros" fica em cinza neutro
- * (e um bucket "resto", nao uma categoria com identidade propria). Verde e
- * reservado para o eixo receita (Salario + TIPO_COLORS.receita), pra ficar
- * consistente com "dinheiro entrando" em todo o dashboard.
- */
-export const CATEGORIA_COLORS: Record<Categoria, CorTema> = {
-  Mercado: { light: "#2a78d6", dark: "#3987e5" },
-  Transporte: { light: "#1baf7a", dark: "#199e70" },
-  Moradia: { light: "#eda100", dark: "#c98500" },
-  "Saúde": { light: "#4a3aa7", dark: "#9085e9" },
-  "Salário": { light: "#008300", dark: "#008300" },
-  Lazer: { light: "#e87ba4", dark: "#d55181" },
-  "Educação": { light: "#eb6834", dark: "#d95926" },
-  Outros: { light: "#898781", dark: "#898781" },
-};
+// Cores por categoria: src/lib/categorias/cores.ts (categorias sao
+// personalizaveis, cada uma guarda a chave da sua cor).
 
 export const TIPO_COLORS: Record<Tipo, CorTema> = {
   receita: { light: "#008300", dark: "#008300" },

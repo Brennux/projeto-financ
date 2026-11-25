@@ -1,53 +1,19 @@
-import type { Categoria } from "@/lib/constants/categorias";
-import type { Tipo } from "./types";
+import { CATEGORIAS_PADRAO } from "@/lib/categorias/padrao";
+import type { RegraCategoria } from "./types";
 
-interface CategoriaRule {
-  tipos: Tipo[];
-  keywords: string[];
-}
+/**
+ * Regras usadas quando nao ha categorias do household a mao (testes, script
+ * de debug). Em producao o bot passa as categorias do proprio household --
+ * ver src/lib/categorias/server.ts (regrasDoHousehold).
+ */
+export const REGRAS_PADRAO: RegraCategoria[] = CATEGORIAS_PADRAO.map(({ nome, tipos, palavrasChave }) => ({
+  nome,
+  tipos,
+  palavrasChave,
+}));
 
-// Chaves e palavras-chave abaixo já são comparadas contra texto normalizado
-// (minúsculas, sem acento) — ver normalize.ts. Para adicionar uma categoria
-// nova, basta um item aqui + uma entrada em CATEGORIAS (src/lib/constants).
-//
-// Nota: não incluir palavras-chave puramente numéricas (ex. "99", o app de
-// transporte) — colidem com o próprio valor da transação, já que toda
-// mensagem tem um número.
-export const CATEGORIA_RULES: Record<Categoria, CategoriaRule> = {
-  Mercado: {
-    tipos: ["despesa"],
-    keywords: ["mercado", "supermercado", "feira", "hortifruti", "padaria", "acougue"],
-  },
-  Transporte: {
-    tipos: ["despesa"],
-    keywords: ["uber", "gasolina", "combustivel", "onibus", "metro", "taxi", "estacionamento"],
-  },
-  Moradia: {
-    tipos: ["despesa"],
-    keywords: ["aluguel", "condominio", "luz", "energia", "agua", "internet", "gas"],
-  },
-  "Saúde": {
-    tipos: ["despesa"],
-    keywords: ["farmacia", "remedio", "medico", "consulta", "dentista", "plano de saude"],
-  },
-  "Salário": {
-    tipos: ["receita"],
-    keywords: ["salario", "pagamento", "freela", "freelance", "bonus", "decimo terceiro"],
-  },
-  Lazer: {
-    tipos: ["despesa"],
-    keywords: ["cinema", "bar", "show", "streaming", "netflix", "viagem", "passeio"],
-  },
-  "Educação": {
-    tipos: ["despesa"],
-    keywords: ["curso", "livro", "faculdade", "escola", "mensalidade"],
-  },
-  Outros: {
-    tipos: ["despesa", "receita"],
-    keywords: [],
-  },
-};
-
+// Palavras-chave ja comparadas contra texto normalizado (minusculas, sem
+// acento) -- ver normalize.ts.
 export const DESPESA_KEYWORDS = [
   "paguei",
   "pagamos",

@@ -1,0 +1,75 @@
+import {
+  Baby,
+  BookOpen,
+  Briefcase,
+  Car,
+  Coffee,
+  CreditCard,
+  Dumbbell,
+  Fuel,
+  Gamepad2,
+  Gift,
+  GraduationCap,
+  HeartPulse,
+  Home,
+  MoreHorizontal,
+  Music,
+  PawPrint,
+  PiggyBank,
+  Plane,
+  Popcorn,
+  Receipt,
+  Shirt,
+  ShoppingCart,
+  Smartphone,
+  Sparkles,
+  TrendingUp,
+  Tv,
+  Utensils,
+  Wallet,
+  Wrench,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+/** Conjunto fechado de icones que uma categoria pode usar (a chave e o que vai pro banco). */
+export const ICONES_CATEGORIA = {
+  carrinho: ShoppingCart,
+  talheres: Utensils,
+  carro: Car,
+  combustivel: Fuel,
+  casa: Home,
+  energia: Zap,
+  saude: HeartPulse,
+  carteira: Wallet,
+  trabalho: Briefcase,
+  investimento: TrendingUp,
+  cofrinho: PiggyBank,
+  pipoca: Popcorn,
+  tv: Tv,
+  musica: Music,
+  jogo: Gamepad2,
+  educacao: GraduationCap,
+  livro: BookOpen,
+  pata: PawPrint,
+  camisa: Shirt,
+  beleza: Sparkles,
+  academia: Dumbbell,
+  bebe: Baby,
+  presente: Gift,
+  viagem: Plane,
+  cafe: Coffee,
+  celular: Smartphone,
+  cartao: CreditCard,
+  ferramenta: Wrench,
+  recibo: Receipt,
+  outros: MoreHorizontal,
+} as const satisfies Record<string, LucideIcon>;
+
+export type IconeCategoria = keyof typeof ICONES_CATEGORIA;
+
+export const CHAVES_ICONE = Object.keys(ICONES_CATEGORIA) as IconeCategoria[];
+
+export function iconeDaCategoria(chave: string): LucideIcon {
+  return ICONES_CATEGORIA[chave as IconeCategoria] ?? MoreHorizontal;
+}

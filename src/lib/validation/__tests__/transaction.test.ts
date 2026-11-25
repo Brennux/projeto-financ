@@ -20,11 +20,11 @@ describe("parsedTransactionSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejeita categoria fora do conjunto conhecido", () => {
+  it("rejeita categoria vazia", () => {
     const result = parsedTransactionSchema.safeParse({
       tipo: "despesa",
       valor: 10,
-      categoria: "NaoExiste",
+      categoria: "",
       descricao: null,
       data: new Date(),
     });

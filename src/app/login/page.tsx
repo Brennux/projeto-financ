@@ -1,17 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthShell } from "@/components/auth/AuthShell";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Entrar</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LoginForm />
-        </CardContent>
-      </Card>
-    </main>
+    <AuthShell titulo="Entrar" descricao="Bom te ver de novo.">
+      <LoginForm />
+    </AuthShell>
   );
 }

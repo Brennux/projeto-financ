@@ -12,9 +12,12 @@ interface StatusResponse {
 }
 
 const POLL_INTERVAL_MS = 2000;
-const POLL_TIMEOUT_MS = 2 * 60 * 1000;
+const POLL_TIMEOUT_MS = 5 * 60 * 1000;
 
-const EM_ANDAMENTO: WhatsAppStatus[] = ["pending", "connecting", "qr_ready"];
+// "disconnected" tambem conta como em andamento: o WhatsApp derruba a conexao
+// depois de alguns QRs expirados e o worker reconecta sozinho com um QR novo.
+// Parar o polling ai deixava a tela presa num QR velho que nao pareia mais.
+const EM_ANDAMENTO: WhatsAppStatus[] = ["pending", "connecting", "qr_ready", "disconnected"];
 
 const STATUS_LABEL: Record<WhatsAppStatus, string> = {
   pending: "Preparando conexao...",
@@ -61,7 +64,7 @@ export function WhatsAppConnectPanel() {
     lastQrRef.current = currentQr;
 
     let ignore = false;
-    Promise.resolve(currentQr ? toDataURL(currentQr) : null).then((url) => {
+    Promise.resolve(currentQr ? toDataURL(currentQr, { width: 320, margin: 2 }) : null).then((url) => {
       if (!ignore) setQrImage(url);
     });
 
@@ -118,12 +121,12 @@ export function WhatsAppConnectPanel() {
     <div className="flex flex-col items-start gap-3">
       {data.status && <p className="text-sm text-muted-foreground">{STATUS_LABEL[data.status]}</p>}
 
-      {qrImage && (
+      {qrImage && !timedOut && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={qrImage} alt="QR code para parear o WhatsApp" className="size-56 rounded-lg border" />
+        <img src={qrImage} alt="QR code para parear o WhatsApp" className="size-64 rounded-lg border bg-white [image-rendering:pixelated]" />
       )}
 
-      {timedOut && <p className="text-sm text-destructive">Tempo esgotado. Tente novamente.</p>}
+      {timedOut && <p className="text-sm text-destructive">O QR code expirou. Clique abaixo pra gerar um novo.</p>}
 
       {(!emAndamento || timedOut) && (
         <Button type="button" onClick={handleConnect}>

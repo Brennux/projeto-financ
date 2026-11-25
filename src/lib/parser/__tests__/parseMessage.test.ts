@@ -79,4 +79,46 @@ describe("parseMessage", () => {
     const result = parseMessage("Paguei 25 na farmacia", REF_DATE);
     expect(result?.categoria).toBe("Saúde");
   });
+
+  it("nao confunde palavra-chave com pedaco de outra palavra (gas != gastei)", () => {
+    expect(parseMessage("Gastei 30 com um presente", REF_DATE)?.categoria).toBe("Outros");
+    expect(parseMessage("Paguei 90 de gas", REF_DATE)?.categoria).toBe("Moradia");
+  });
+
+  it("aceita plural da palavra-chave", () => {
+    expect(parseMessage("Paguei 80 em remedios", REF_DATE)?.categoria).toBe("Saúde");
+  });
+
+  it("reconhece as categorias padrao novas", () => {
+    expect(parseMessage("Gastei 45 no ifood", REF_DATE)?.categoria).toBe("Restaurante");
+    expect(parseMessage("Paguei 39,90 da netflix", REF_DATE)?.categoria).toBe("Assinaturas");
+    expect(parseMessage("Comprei 120 de racao", REF_DATE)?.categoria).toBe("Pets");
+    expect(parseMessage("Comprei 200 num tenis", REF_DATE)?.categoria).toBe("Vestuário");
+  });
+});
+
+describe("parseMessage com categorias do household", () => {
+  const regras = [
+    { nome: "Saúde", tipos: ["despesa" as const], palavrasChave: ["farmacia", "remedio"] },
+    { nome: "Farmácia", tipos: ["despesa" as const], palavrasChave: [] },
+    { nome: "Casa", tipos: ["despesa" as const], palavrasChave: ["aluguel"] },
+    { nome: "Outros", tipos: ["despesa" as const, "receita" as const], palavrasChave: [] },
+  ];
+
+  it("o nome da categoria na mensagem vence a palavra-chave de outra", () => {
+    expect(parseMessage("Paguei 25 na farmácia", REF_DATE, regras)?.categoria).toBe("Farmácia");
+  });
+
+  it("usa palavra-chave quando nenhum nome aparece", () => {
+    expect(parseMessage("Paguei 25 de remedio", REF_DATE, regras)?.categoria).toBe("Saúde");
+  });
+
+  it("compara o nome como palavra inteira (casa != casamento)", () => {
+    expect(parseMessage("Gastei 300 no casamento", REF_DATE, regras)?.categoria).toBe("Outros");
+    expect(parseMessage("Gastei 300 na casa", REF_DATE, regras)?.categoria).toBe("Casa");
+  });
+
+  it("respeita o tipo da categoria", () => {
+    expect(parseMessage("Recebi 50 da farmacia", REF_DATE, regras)?.categoria).toBe("Outros");
+  });
 });

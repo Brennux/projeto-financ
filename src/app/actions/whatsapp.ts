@@ -28,3 +28,18 @@ export async function getMyLinkStatus(): Promise<MyLinkStatus> {
     linkedAt: user.whatsAppLinkedAt?.toISOString() ?? null,
   };
 }
+
+/**
+ * Remove o vinculo do numero do usuario logado. As mensagens desse numero
+ * deixam de virar lancamento (o bot passa a responder "remetente nao
+ * reconhecido"); os lancamentos ja feitos continuam no household. Pra
+ * vincular de novo (o mesmo numero ou outro), e so gerar um novo codigo.
+ */
+export async function unlinkMyWhatsApp(): Promise<MyLinkStatus> {
+  const session = await verifySession();
+  await prisma.user.update({
+    where: { id: session.userId },
+    data: { whatsAppJid: null, whatsAppJidAlt: null, telefone: null, whatsAppLinkedAt: null },
+  });
+  return { linked: false, telefone: null, linkedAt: null };
+}

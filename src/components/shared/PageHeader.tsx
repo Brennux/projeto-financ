@@ -13,11 +13,11 @@ export function PageHeader({ title, description, backHref, backLabel, actions }:
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div>
         {backHref && (
-          <Link href={backHref} className="text-sm text-muted-foreground hover:underline">
+          <Link href={backHref} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             {backLabel ?? "← Voltar"}
           </Link>
         )}
-        <h1 className="text-2xl font-semibold">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

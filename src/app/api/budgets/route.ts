@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getOptionalSession } from "@/lib/auth/dal";
 import { budgetInputSchema } from "@/lib/validation/budget";
+import { validarCategoria } from "@/lib/categorias/server";
 
 export async function GET() {
   const session = await getOptionalSession();
@@ -36,6 +37,12 @@ export async function POST(request: Request) {
       { error: "Dados inválidos", detalhes: parsed.error.flatten() },
       { status: 400 },
     );
+  }
+
+  // Orcamento so faz sentido pra categoria que aceita despesa.
+  const erroCategoria = await validarCategoria(session.householdId, parsed.data.categoria, "despesa");
+  if (erroCategoria) {
+    return NextResponse.json({ error: erroCategoria }, { status: 400 });
   }
 
   try {

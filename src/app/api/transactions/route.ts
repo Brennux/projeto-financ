@@ -3,6 +3,8 @@ import { endOfMonth, startOfMonth } from "date-fns";
 import prisma from "@/lib/prisma";
 import { getOptionalSession } from "@/lib/auth/dal";
 import { manualTransactionInputSchema } from "@/lib/validation/transaction";
+import { validarCategoria } from "@/lib/categorias/server";
+import { getCartao, registrarLancamento } from "@/lib/cartoes/server";
 import type { Prisma } from "@/generated/prisma";
 
 export async function GET(request: Request) {
@@ -58,16 +60,34 @@ export async function POST(request: Request) {
     );
   }
 
+  const erroCategoria = await validarCategoria(session.householdId, parsed.data.categoria, parsed.data.tipo);
+  if (erroCategoria) {
+    return NextResponse.json({ error: erroCategoria }, { status: 400 });
+  }
+
+  const { cartaoId, parcelas = 1, ...campos } = parsed.data;
+  const cartao = cartaoId ? await getCartao(session.householdId, cartaoId) : null;
+  if (cartaoId && (!cartao || !cartao.ativo)) {
+    return NextResponse.json({ error: "Cartão não encontrado." }, { status: 400 });
+  }
+  if (campos.tipo === "receita" && parcelas > 1) {
+    return NextResponse.json({ error: "Receita não pode ser parcelada." }, { status: 400 });
+  }
+
   try {
-    const transacao = await prisma.transaction.create({
-      data: {
-        ...parsed.data,
-        origem: "manual",
-        householdId: session.householdId,
-        userId: session.userId,
-      },
+    const criadas = await registrarLancamento({
+      householdId: session.householdId,
+      userId: session.userId,
+      tipo: campos.tipo,
+      valorTotal: campos.valor,
+      categoria: campos.categoria,
+      descricao: campos.descricao,
+      dataCompra: campos.data,
+      parcelas,
+      cartao,
+      origem: "manual",
     });
-    return NextResponse.json({ ...transacao, valor: Number(transacao.valor) }, { status: 201 });
+    return NextResponse.json({ parcelas: criadas.length, primeiraData: criadas[0]?.data }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Erro ao criar transação" }, { status: 500 });

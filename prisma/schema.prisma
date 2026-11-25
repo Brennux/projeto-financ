@@ -31,6 +31,9 @@ model Household {
   transactions Transaction[]
   invites      HouseholdInvite[]
   budgets      Budget[]
+  categorias   Category[]
+  recorrencias RecurringTransaction[]
+  cartoes      CreditCard[]
 }
 
 model User {
@@ -56,6 +59,7 @@ model User {
   transactions     Transaction[]
   invitesCriados   HouseholdInvite[] @relation("HouseholdInviteCreatedBy")
   whatsAppLinkCode WhatsAppLinkCode?
+  recorrencias     RecurringTransaction[]
 
   @@index([householdId])
 }
@@ -112,14 +116,33 @@ model Transaction {
   origem            String   @default("whatsapp")
   householdId       String
   userId            String?
+  recorrenciaId     String?
+
+  // Cartao de credito: `data` e o VENCIMENTO da fatura em que a compra (ou
+  // a parcela) cai -- e por isso que o gasto conta no mes da fatura em todo
+  // o app sem nenhum caso especial. A data real da compra fica em dataCompra.
+  cartaoId          String?
+  dataCompra        DateTime? @db.Date
+  // Parcelamento: as N parcelas de uma compra compartilham parcelamentoId.
+  parcelamentoId    String?
+  parcelaNumero     Int?
+  parcelaTotal      Int?
+
   criadoEm          DateTime @default(now())
   atualizadoEm      DateTime @updatedAt
 
-  household Household @relation(fields: [householdId], references: [id], onDelete: Restrict)
-  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  household   Household             @relation(fields: [householdId], references: [id], onDelete: Restrict)
+  user        User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recorrencia RecurringTransaction? @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
+  cartao      CreditCard?           @relation(fields: [cartaoId], references: [id], onDelete: Restrict)
 
   @@index([householdId, data, tipo])
   @@index([householdId, categoria])
+  @@index([cartaoId, data])
+  @@index([parcelamentoId])
+  // Uma ocorrencia por recorrencia por data -- gerar duas vezes (worker e
+  // app ao mesmo tempo, ou um retry) nunca duplica o lancamento.
+  @@unique([recorrenciaId, data])
 }
 
 model Budget {
@@ -133,4 +156,95 @@ model Budget {
   household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
   @@unique([householdId, categoria])
+}
+
+// Categorias por household. Transaction/Budget/RecurringTransaction guardam
+// o NOME da categoria (string), entao renomear atualiza essas tabelas junto
+// (ver src/lib/categorias/server.ts).
+model Category {
+  id            String   @id @default(cuid())
+  householdId   String
+  nome          String
+  tipos         Tipo[]
+  // Chaves da paleta/icones fixos (src/lib/categorias/aparencia.ts) -- nunca
+  // hex livre, pra manter as cores validadas dos graficos.
+  cor           String
+  icone         String
+  // Ja normalizadas (minusculas, sem acento) -- comparadas com a mensagem do WhatsApp.
+  palavrasChave String[] @default([])
+  // Ordem de avaliacao no parser (primeira categoria cujas palavras batem vence).
+  ordem         Int      @default(0)
+  // "Outros": fallback do parser, nao pode ser renomeada nem excluida.
+  sistema       Boolean  @default(false)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, nome])
+}
+
+// Lancamento que se repete todo mes (aluguel, salario, assinaturas). As
+// ocorrencias sao materializadas como Transaction (origem "recorrente") quando
+// proximaData chega -- ver src/lib/recorrencias/server.ts.
+model RecurringTransaction {
+  id           String   @id @default(cuid())
+  householdId  String
+  userId       String?
+  tipo         Tipo
+  valor        Decimal  @db.Decimal(10, 2)
+  categoria    String
+  descricao    String
+  diaDoMes     Int
+  proximaData  DateTime @db.Date
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+
+  @@index([householdId])
+  @@index([ativo, proximaData])
+}
+
+// Cartao de credito do household. Fechamento decide em que fatura a compra
+// cai; vencimento e a data (e o mes) em que ela conta -- ver
+// src/lib/cartoes/fatura.ts.
+model CreditCard {
+  id            String   @id @default(cuid())
+  householdId   String
+  nome          String
+  // Chave da paleta de categorias (src/lib/categorias/cores.ts).
+  cor           String
+  limite        Decimal? @db.Decimal(10, 2)
+  diaFechamento Int
+  diaVencimento Int
+  // Arquivado: some dos formularios, mas o historico continua.
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  faturasPagas FaturaPaga[]
+
+  @@unique([householdId, nome])
+}
+
+// Fatura marcada como paga. A fatura em si nao e guardada: e a soma das
+// transacoes do cartao com vencimento naquele mes. Pagar nao cria despesa
+// (o gasto ja foi contado compra a compra).
+model FaturaPaga {
+  id       String   @id @default(cuid())
+  cartaoId String
+  // Primeiro dia do mes do vencimento (identifica a fatura).
+  mes      DateTime @db.Date
+  pagaEm   DateTime @default(now())
+  userId   String?
+
+  cartao CreditCard @relation(fields: [cartaoId], references: [id], onDelete: Cascade)
+
+  @@unique([cartaoId, mes])
 }

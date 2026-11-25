@@ -15,9 +15,9 @@ interface Props {
 
 export function BudgetProgressList({ orcamentos, renderActions }: Props) {
   return (
-    <ul className="flex flex-col gap-4">
+    <ul className="stagger-rows flex flex-col gap-4">
       {orcamentos.map((o) => (
-        <li key={o.id} className="flex flex-col gap-1.5">
+        <li key={o.id} data-fit-item className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2 text-sm">
             <span className="font-medium">{o.categoria}</span>
             <div className="flex items-center gap-2">

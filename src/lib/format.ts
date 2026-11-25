@@ -18,3 +18,8 @@ export function formatCurrencyBRL(valor: number): string {
 export function formatDatePtBr(data: Date): string {
   return dateFormatter.format(data);
 }
+
+/** "Breno Nascimento" -> "Breno" (espaco apertado: listas, legendas). */
+export function primeiroNome(nome: string): string {
+  return nome.trim().split(/s+/)[0] || nome;
+}

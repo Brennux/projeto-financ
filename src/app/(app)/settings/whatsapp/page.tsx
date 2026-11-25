@@ -7,6 +7,8 @@ import { verifySession } from "@/lib/auth/dal";
 import { getMyLinkStatus } from "@/app/actions/whatsapp";
 
 const DISPLAY_NUMBER = process.env.WHATSAPP_DISPLAY_NUMBER ?? "(número não configurado)";
+// So os digitos (ex.: "+55 94 93300-5887" -> "5594933005887"), formato que o wa.me exige.
+const BOT_NUMBER = process.env.WHATSAPP_DISPLAY_NUMBER?.replace(/\D/g, "") || null;
 
 export default async function WhatsAppSettingsPage() {
   await verifySession();
@@ -37,7 +39,7 @@ export default async function WhatsAppSettingsPage() {
             Pra eu saber que os gastos que você manda são seus, gere um código aqui e mande pelo WhatsApp pro número{" "}
             {DISPLAY_NUMBER}.
           </p>
-          <WhatsAppLinkPanel initialStatus={linkStatus} />
+          <WhatsAppLinkPanel initialStatus={linkStatus} botNumber={BOT_NUMBER} />
         </CardContent>
       </Card>
     </PageContainer>

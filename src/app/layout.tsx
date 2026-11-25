@@ -4,6 +4,9 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { FundoAmbiente } from "@/components/efeitos/FundoAmbiente";
+import { LuzNosCards } from "@/components/efeitos/LuzNosCards";
+import { SCRIPT_PALETA } from "@/lib/paletas";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -19,7 +22,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+      <head>
+        {/* Aplica a paleta salva antes da primeira pintura (sem piscar a padrao). */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_PALETA }} />
+      </head>
       <body>
+        <FundoAmbiente />
+        <LuzNosCards />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Toaster />

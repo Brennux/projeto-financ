@@ -1,10 +1,9 @@
 import prisma from "@/lib/prisma";
-import type { Categoria } from "@/lib/constants/categorias";
 import { getDespesasPorCategoria } from "./transactions";
 
 export interface Orcamento {
   id: string;
-  categoria: Categoria;
+  categoria: string;
   limite: number;
 }
 
@@ -16,7 +15,7 @@ export async function getOrcamentos(householdId: string): Promise<Orcamento[]> {
 
   return linhas.map((l) => ({
     id: l.id,
-    categoria: l.categoria as Categoria,
+    categoria: l.categoria,
     limite: Number(l.limite),
   }));
 }
@@ -25,7 +24,7 @@ export type StatusOrcamento = "good" | "warning" | "critical";
 
 export interface OrcamentoComGasto {
   id: string;
-  categoria: Categoria;
+  categoria: string;
   limite: number;
   gasto: number;
   percentual: number;

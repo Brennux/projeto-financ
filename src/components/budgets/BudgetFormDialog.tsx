@@ -23,12 +23,11 @@ import {
   type BudgetFormInput,
   type BudgetInput,
 } from "@/lib/validation/budget";
-import type { Categoria } from "@/lib/constants/categorias";
 import type { Orcamento } from "@/lib/queries/budgets";
 
 interface Props {
   orcamento?: Orcamento;
-  categoriasDisponiveis?: Categoria[];
+  categoriasDisponiveis?: string[];
   trigger: ReactElement;
 }
 
@@ -62,7 +61,8 @@ export function BudgetFormDialog({ orcamento, categoriasDisponiveis = [], trigge
     });
 
     if (!res.ok) {
-      toast.error("Não foi possível salvar o orçamento.");
+      const corpo: { error?: string } = await res.json().catch(() => ({}));
+      toast.error(corpo.error ?? "Não foi possível salvar o orçamento.");
       return;
     }
 

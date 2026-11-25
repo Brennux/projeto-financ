@@ -1,12 +1,18 @@
 import { z } from "zod";
-import { CATEGORIAS } from "@/lib/constants/categorias";
 
 export const tipoSchema = z.enum(["despesa", "receita"]);
+
+/**
+ * So o formato -- se a categoria existe no household (e aceita o tipo) e
+ * conferido no servidor contra o banco (validarCategoria), ja que as
+ * categorias agora sao personalizaveis.
+ */
+export const nomeCategoriaSchema = z.string().trim().min(1, "Escolha uma categoria").max(40);
 
 const camposTransacao = {
   tipo: tipoSchema,
   valor: z.coerce.number().positive().max(1_000_000),
-  categoria: z.enum(CATEGORIAS),
+  categoria: nomeCategoriaSchema,
   descricao: z.string().trim().nullable(),
   data: z.coerce.date(),
 };
@@ -20,12 +26,22 @@ export const parsedTransactionSchema = z.object(camposTransacao);
 
 /**
  * Usado tanto pela API (POST) quanto pelo formulario manual do dashboard --
- * uma unica regra de validacao para as duas origens de dado.
+ * uma unica regra de validacao para as duas origens de dado. Na criacao da
+ * pra escolher o cartao e parcelar; `data` e a data da COMPRA (no cartao, o
+ * servidor calcula em que fatura cada parcela cai).
  */
-export const manualTransactionInputSchema = z.object(camposTransacao);
+export const manualTransactionInputSchema = z.object({
+  ...camposTransacao,
+  cartaoId: z.string().min(1).nullable().optional(),
+  parcelas: z.coerce.number().int().min(1).max(48).optional(),
+});
 
-/** PATCH: qualquer subconjunto dos campos acima. */
-export const updateTransactionSchema = manualTransactionInputSchema.partial();
+/**
+ * PATCH: qualquer subconjunto dos campos basicos. Cartao e parcelas nao
+ * mudam na edicao (mudariam as datas de todas as parcelas) -- pra isso,
+ * exclui e lanca de novo.
+ */
+export const updateTransactionSchema = z.object(camposTransacao).partial();
 
 export type ParsedTransactionInput = z.infer<typeof parsedTransactionSchema>;
 

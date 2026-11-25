@@ -31,7 +31,7 @@ export function LoginForm() {
         {pending ? "Entrando..." : "Entrar"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
-        Nao tem conta?{" "}
+        Não tem conta?{" "}
         <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
           Cadastre-se
         </Link>

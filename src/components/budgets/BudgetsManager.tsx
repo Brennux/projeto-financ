@@ -20,12 +20,11 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrencyBRL } from "@/lib/format";
 import { BudgetFormDialog } from "./BudgetFormDialog";
 import { BudgetProgressList } from "./BudgetProgressList";
-import type { Categoria } from "@/lib/constants/categorias";
 import type { OrcamentoComGasto } from "@/lib/queries/budgets";
 
 interface Props {
   orcamentos: OrcamentoComGasto[];
-  categoriasSemOrcamento: Categoria[];
+  categoriasSemOrcamento: string[];
 }
 
 export function BudgetsManager({ orcamentos, categoriasSemOrcamento }: Props) {

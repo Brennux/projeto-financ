@@ -1,17 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthShell } from "@/components/auth/AuthShell";
 import { SignupForm } from "@/components/auth/SignupForm";
 
 export default function SignupPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Criar conta</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SignupForm />
-        </CardContent>
-      </Card>
-    </main>
+    <AuthShell titulo="Criar conta" descricao="Leva menos de um minuto.">
+      <SignupForm />
+    </AuthShell>
   );
 }

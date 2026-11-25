@@ -1,19 +1,11 @@
 import { z } from "zod";
-import { CATEGORIAS, type Categoria } from "@/lib/constants/categorias";
-import { CATEGORIA_RULES } from "@/lib/parser/dictionaries";
+import { nomeCategoriaSchema } from "./transaction";
 
-/** Categorias com sentido de limite mensal -- exclui as receita-only (ex. Salário). */
-export const CATEGORIAS_ORCAVEIS: Categoria[] = CATEGORIAS.filter((categoria) =>
-  CATEGORIA_RULES[categoria].tipos.includes("despesa"),
-);
-const CATEGORIAS_ORCAVEIS_SET = new Set<Categoria>(CATEGORIAS_ORCAVEIS);
-
+// Se a categoria existe e aceita despesa (orcamento so faz sentido pra
+// gasto) e conferido no servidor contra o banco -- as categorias agora sao
+// personalizaveis por household.
 const camposBudget = {
-  categoria: z
-    .enum(CATEGORIAS)
-    .refine((categoria) => CATEGORIAS_ORCAVEIS_SET.has(categoria), {
-      message: "Categoria não é elegível para orçamento",
-    }),
+  categoria: nomeCategoriaSchema,
   limite: z.coerce.number().positive().max(1_000_000),
 };
 

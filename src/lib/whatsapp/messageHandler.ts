@@ -1,20 +1,45 @@
 import type { WASocket, BaileysEventMap } from "baileys";
 import { isJidGroup } from "baileys";
-import prisma from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma";
 import { parseMessage } from "@/lib/parser";
+import { normalize } from "@/lib/parser/normalize";
 import { parsedTransactionSchema } from "@/lib/validation/transaction";
 import { extractIncomingIdentity, findUserByIncomingJid } from "./phone";
 import { claimLinkCode } from "./linkCode";
+import { regrasDoHousehold } from "@/lib/categorias/server";
+import { getCartoes, registrarLancamento } from "@/lib/cartoes/server";
+import { escolherCartao, PERGUNTAR_CARTAO } from "@/lib/cartoes/escolha";
+import type { Parcela } from "@/lib/cartoes/fatura";
+import { detectarComando } from "./comandos";
+import { alertaOrcamentoAposDespesa, responderComando } from "./consultas";
 import {
+  buildConfirmacaoCompra,
   buildConfirmationMessage,
   buildFailureMessage,
+  buildQualCartaoMessage,
   buildLinkConflictMessage,
   buildLinkExpiredMessage,
   buildLinkSuccessMessage,
   buildUnrecognizedSenderMessage,
 } from "./replyTemplates";
 import { logger } from "./logger";
+
+// Comandos nao gravam nada com whatsappMessageId (que e o que deduplica os
+// lancamentos), entao um reenvio do Baileys ao reconectar executaria o mesmo
+// "desfazer" duas vezes. Guarda os ids dos comandos ja respondidos.
+const MAX_COMANDOS_LEMBRADOS = 500;
+const comandosProcessados = new Set<string>();
+
+function jaProcessouComando(messageId: string | null | undefined): boolean {
+  if (!messageId) return false;
+  if (comandosProcessados.has(messageId)) return true;
+  comandosProcessados.add(messageId);
+  if (comandosProcessados.size > MAX_COMANDOS_LEMBRADOS) {
+    const maisAntigo = comandosProcessados.values().next().value;
+    if (maisAntigo) comandosProcessados.delete(maisAntigo);
+  }
+  return false;
+}
 
 function extractText(message: BaileysEventMap["messages.upsert"]["messages"][number]): string | null {
   const conteudo = message.message;
@@ -80,7 +105,20 @@ export async function handleMessagesUpsert(sock: WASocket, upsert: BaileysEventM
       continue;
     }
 
-    const parsed = parseMessage(texto);
+    const comando = detectarComando(texto);
+    if (comando) {
+      if (jaProcessouComando(msg.key.id)) continue;
+      try {
+        await replySafely(sock, remoteJid, await responderComando(comando, user));
+      } catch (err) {
+        logger.error({ err, comando }, "Falha ao responder comando do WhatsApp.");
+        await replySafely(sock, remoteJid, "😕 Não consegui responder agora. Tente de novo em instantes.");
+      }
+      continue;
+    }
+
+    // Categorias do proprio household (personalizaveis), nao as padrao.
+    const parsed = parseMessage(texto, new Date(), await regrasDoHousehold(user.householdId));
 
     if (!parsed) {
       logger.info({ texto }, "Mensagem nao reconhecida pelo parser.");
@@ -89,18 +127,36 @@ export async function handleMessagesUpsert(sock: WASocket, upsert: BaileysEventM
     }
 
     const validado = parsedTransactionSchema.parse(parsed);
+    const numeroDeParcelas = parsed.parcelas ?? 1;
 
+    // Cartao: pelo nome na mensagem, ou o unico cadastrado quando ela fala em
+    // credito/parcelas. Com varios e nenhum citado, pergunta em vez de chutar.
+    const cartoes = validado.tipo === "despesa" ? await getCartoes(user.householdId) : [];
+    const cartao = escolherCartao(normalize(texto), cartoes, {
+      noCredito: parsed.noCredito ?? false,
+      parcelas: numeroDeParcelas,
+    });
+    if (cartao === PERGUNTAR_CARTAO) {
+      await replySafely(sock, remoteJid, buildQualCartaoMessage(cartoes.map((c) => c.nome)));
+      continue;
+    }
+
+    let parcelas: Parcela[];
     try {
-      await prisma.transaction.create({
-        data: {
-          ...validado,
-          mensagemOriginal: texto,
-          remetente: remoteJid,
-          whatsappMessageId: msg.key.id ?? undefined,
-          origem: "whatsapp",
-          householdId: user.householdId,
-          userId: user.id,
-        },
+      parcelas = await registrarLancamento({
+        householdId: user.householdId,
+        userId: user.id,
+        tipo: validado.tipo,
+        valorTotal: validado.valor,
+        categoria: validado.categoria,
+        descricao: validado.descricao,
+        dataCompra: validado.data,
+        parcelas: numeroDeParcelas,
+        cartao,
+        origem: "whatsapp",
+        whatsappMessageId: msg.key.id ?? undefined,
+        mensagemOriginal: texto,
+        remetente: remoteJid,
       });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -112,6 +168,25 @@ export async function handleMessagesUpsert(sock: WASocket, upsert: BaileysEventM
       throw err;
     }
 
-    await replySafely(sock, remoteJid, buildConfirmationMessage(parsed));
+    // Aviso de orcamento e um extra: se falhar, a confirmacao sai mesmo assim.
+    // Conta no mes em que a (1a) parcela conta -- no cartao, o da fatura.
+    const alerta =
+      validado.tipo === "despesa"
+        ? await alertaOrcamentoAposDespesa(user.householdId, validado.categoria, parcelas[0].data).catch(
+            (err: unknown) => {
+              logger.error({ err }, "Falha ao calcular aviso de orcamento.");
+              return null;
+            },
+          )
+        : null;
+
+    const confirmacao =
+      cartao || parcelas.length > 1
+        ? buildConfirmacaoCompra(
+            { valorTotal: validado.valor, categoria: validado.categoria, cartaoNome: cartao?.nome ?? null, parcelas },
+            alerta,
+          )
+        : buildConfirmationMessage(validado, alerta);
+    await replySafely(sock, remoteJid, confirmacao);
   }
 }
